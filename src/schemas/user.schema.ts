@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Exclude } from 'class-transformer';
 import { HydratedDocument } from 'mongoose';
 
 export type CatDocument = HydratedDocument<User>;
@@ -14,6 +13,9 @@ export class User {
 
   @Prop({ default: 'https://www.gravatar.com/avatar/' })
   avatarUrl?: string;
+
+  @Prop({ enum: ['admin', 'user'], default: 'user' })
+  role: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -12,6 +12,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new LoggerErrorInterceptor());
   app.enableCors();
+
   await app.listen(process.env.PORT || 5000);
 }
 bootstrap();

@@ -29,7 +29,7 @@ export class AuthService {
     return newUser.save();
   }
 
-  async validateUser(payloadAuthDto: PayloadAuthDto) {
+  async validateUser(payloadAuthDto: PayloadAuthDto): Promise<any> {
     const findUser = await this.userModel
       .findOne({
         username: payloadAuthDto.username,
@@ -47,8 +47,13 @@ export class AuthService {
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = findUser.toJSON();
+    return result;
+  }
+
+  async signIn(user: any) {
+    const payload = { username: user.username, role: user.role };
     return {
-      access_token: await this.jwtService.signAsync(result),
+      access_token: this.jwtService.sign(payload),
     };
   }
 }
