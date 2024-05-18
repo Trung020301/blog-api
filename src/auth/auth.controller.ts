@@ -3,10 +3,11 @@ import { PayloadAuthDto } from './dto/PayloadAuthDto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local.guard';
 import { Request } from 'express';
-import { JwtAuthGuard } from './guards/jwt.guard';
 import { AuthenticationGuard } from 'src/guards/authentication.guard';
 import { AuthorizationGuard } from 'src/guards/authorization.guard';
 import { Roles } from 'src/decorators/roles.decorator';
+import { RefreshJwtGuard } from './guards/refresh-jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,9 +25,17 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getHello(@Req() req: Request) {
-    return req.user;
+  @Get('sign-out')
+  async signOut(@Req() req: Request) {
+    return this.authService.signOut(req.user['sub']);
+  }
+
+  @UseGuards(RefreshJwtGuard)
+  @Get('refresh-token')
+  async refreshTokens(@Req() req: Request) {
+    const userId = req.user['sub'];
+    const refreshToken = req.user['refreshToken'];
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 
   @Roles('admin')
@@ -35,7 +44,4 @@ export class AuthController {
   async protected() {
     return 'Protected route';
   }
-  // async profile(@Req() req: Request) {
-  //   return req.user;
-  // }
 }

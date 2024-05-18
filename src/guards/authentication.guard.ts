@@ -1,8 +1,8 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
@@ -18,12 +18,11 @@ export class AuthenticationGuard implements CanActivate {
       const token = request.headers.authorization.split(' ')[1];
 
       if (!token) {
-        throw new UnauthorizedException();
+        throw new HttpException('Token is required', 401);
       }
       request.user = this.jwtService.verify(token);
     } catch (error) {
-      console.log('📛 Error:', error);
-      throw new UnauthorizedException();
+      throw new HttpException(error.message, error.status || 401);
     }
 
     return true;
