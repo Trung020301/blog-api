@@ -5,6 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { JwtModule } from '@nestjs/jwt';
+import { JWT_SECRET } from './lib/constant';
 
 @Module({
   imports: [
@@ -29,7 +32,13 @@ import { AuthModule } from './auth/auth.module';
         uri: process.env.MONGODB_URI,
       }),
     }),
+    JwtModule.register({
+      secret: JWT_SECRET,
+      global: true,
+      signOptions: { expiresIn: '1d' },
+    }),
     AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

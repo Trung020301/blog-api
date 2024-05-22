@@ -1,7 +1,8 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument } from 'mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
+import { EnumRoles } from 'src/lib/enum';
 
-export type CatDocument = HydratedDocument<User>;
+export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User extends Document {
@@ -11,14 +12,45 @@ export class User extends Document {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ default: 'https://www.gravatar.com/avatar/' })
-  avatarUrl?: string;
+  @Prop(
+    raw({
+      displayName: {
+        type: String,
+        default: '',
+      },
+      avtUrl: {
+        type: String,
+        default: 'https://www.gravatar.com/avatar/',
+      },
+      bio: { type: String, default: '' },
+      coverImage: { type: String, default: '' },
+    }),
+  )
+  details: Record<string, any>;
 
-  @Prop({ enum: ['admin', 'user'], default: 'user' })
+  @Prop({ default: [], type: Types.ObjectId, ref: 'Post' })
+  posts: ObjectId[];
+
+  @Prop({ enum: EnumRoles, default: EnumRoles.USER })
   role: string;
+
+  @Prop({ default: [], type: Types.ObjectId, ref: 'User' })
+  following: ObjectId[];
+
+  @Prop({ default: [], type: Types.ObjectId, ref: 'User' })
+  followers: ObjectId[];
+
+  @Prop({ default: true })
+  isActive: boolean;
+
+  @Prop({ default: [], type: Types.ObjectId, ref: 'User' })
+  blockedUsers: ObjectId[];
 
   @Prop()
   refreshToken: string;
+
+  @Prop({ default: Date.now })
+  createdAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

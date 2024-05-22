@@ -65,7 +65,7 @@ export class AuthService {
 
   async signIn(user: any) {
     const tokens = await this.getTokens(user._id, user.role);
-    return tokens;
+    return { access_token: tokens.accessToken };
   }
 
   async signOut(user: User) {
