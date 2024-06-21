@@ -5,7 +5,6 @@ import {
   Req,
   UseGuards,
   Patch,
-  Headers,
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -24,12 +23,10 @@ export class UsersController {
     return this.userService.getMyProfile(req.user['sub']);
   }
 
+  @UseGuards(AuthenticationGuard)
   @Get(':username')
-  async getUserProfile(
-    @Param('username') username: string,
-    @Headers('Authorization') token: string,
-  ) {
-    return this.userService.getUserProfile(username, token);
+  async getUserProfile(@Param('username') username: string) {
+    return this.userService.getUserProfile(username);
   }
 
   // <-- START FOLLOW -->

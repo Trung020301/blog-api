@@ -1,9 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import * as jwt from 'jsonwebtoken';
 
-import { AllUserFollowingsType, UserProfileType } from 'src/lib/type';
+import { UserProfileType } from 'src/lib/type';
 import { User } from 'src/schemas/user.schema';
 import { Paginator } from 'src/utils/pagination/paginate';
 
@@ -17,29 +16,21 @@ export class UsersService {
   }
 
   // <-- GET USER PROFILE -->
-  async getUserProfile(
-    username: string,
-    token?: string,
-  ): Promise<UserProfileType> {
+  async getUserProfile(username: string): Promise<UserProfileType> {
     const user = await this.userModel.findOne({ username });
     if (!user) {
       throw new HttpException('User not found', 404);
+    }
+
+    const isBlocked = user.blockedUsers.includes(user._id);
+    if (isBlocked) {
+      throw new HttpException('User doesnt exist', 403);
     }
 
     const result: UserProfileType = {
       details: user.details,
       posts: user.posts,
     };
-
-    if (token) {
-      const decoded = jwt.decode(token.split(' ')[1]);
-      const userId = decoded['sub'];
-      const isBlocked =
-        user.blockedUsers.findIndex((id) => id.toString() === userId) !== -1;
-      if (isBlocked) {
-        throw new HttpException('User not found', 404);
-      }
-    }
 
     return result;
   }
@@ -132,5 +123,16 @@ export class UsersService {
     });
     const result = await paginator.paginate();
     return result;
+  }
+
+  async checkUserIsBlocked(
+    userId: ObjectId,
+    blockId: ObjectId,
+  ): Promise<boolean> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+    return user.blockedUsers.includes(blockId);
   }
 }

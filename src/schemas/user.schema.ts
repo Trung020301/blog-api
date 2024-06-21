@@ -16,14 +16,26 @@ export class User extends Document {
     raw({
       displayName: {
         type: String,
-        default: '',
+        default: null,
       },
       avtUrl: {
         type: String,
         default: 'https://www.gravatar.com/avatar/',
       },
-      bio: { type: String, default: '' },
-      coverImage: { type: String, default: '' },
+      bio: { type: String, default: null },
+      coverImage: { type: String, default: null },
+      live: {
+        type: String,
+        default: null,
+      },
+      whereFrom: {
+        type: String,
+        default: null,
+      },
+      birthday: {
+        type: Date,
+        default: null,
+      },
     }),
   )
   details: Record<string, any>;
